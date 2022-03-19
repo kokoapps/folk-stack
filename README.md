@@ -1,11 +1,11 @@
-# Remix Blues Stack
+# Remix folk Stack
 
-![The Remix Blues Stack](https://repository-images.githubusercontent.com/461012689/37d5bd8b-fa9c-4ab0-893c-f0a199d5012d)
+![The Remix folk Stack](https://repository-images.githubusercontent.com/461012689/37d5bd8b-fa9c-4ab0-893c-f0a199d5012d)
 
 Learn more about [Remix Stacks](https://remix.run/stacks).
 
 ```
-npx create-remix --template remix-run/blues-stack
+npx create-remix --template remix-run/folk-stack
 ```
 
 ## What's in the stack
@@ -80,8 +80,8 @@ Prior to your first deployment, you'll need to do a few things:
 - Create two apps on Fly, one for staging and one for production:
 
   ```sh
-  fly create blues-stack-template
-  fly create blues-stack-template-staging
+  fly create folk-stack-template
+  fly create folk-stack-template-staging
   ```
 
 - Create a new [GitHub Repository](https://repo.new)
@@ -91,8 +91,8 @@ Prior to your first deployment, you'll need to do a few things:
 - Add a `SESSION_SECRET` to your fly app secrets, to do this you can run the following commands:
 
   ```sh
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app blues-stack-template
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app blues-stack-template-staging
+  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app folk-stack-template
+  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app folk-stack-template-staging
   ```
 
   If you don't have openssl installed, you can also use [1password](https://1password.com/generate-password) to generate a random secret, just replace `$(openssl rand -hex 32)` with the generated secret.
@@ -100,11 +100,11 @@ Prior to your first deployment, you'll need to do a few things:
 - Create a database for both your staging and production environments. Run the following:
 
   ```sh
-  fly postgres create --name blues-stack-template-db
-  fly postgres attach --postgres-app blues-stack-template-db --app blues-stack-template
+  fly postgres create --name folk-stack-template-db
+  fly postgres attach --postgres-app folk-stack-template-db --app folk-stack-template
 
-  fly postgres create --name blues-stack-template-staging-db
-  fly postgres attach --postgres-app blues-stack-template-staging-db --app blues-stack-template-staging
+  fly postgres create --name folk-stack-template-staging-db
+  fly postgres attach --postgres-app folk-stack-template-staging-db --app folk-stack-template-staging
   ```
 
   Fly will take care of setting the DATABASE_URL secret for you.

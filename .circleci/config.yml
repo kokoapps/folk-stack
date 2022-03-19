@@ -1,0 +1,144 @@
+version: 2.1
+
+orbs:
+  cypress: cypress-io/cypress@1
+  node: circleci/node@5.0.0
+
+
+executors:
+  cypress-node-16:
+    docker:
+      - image: 'cypress/base:16.13.2'
+    environment:
+      SESSION_SECRET: some-session-secret
+      TERM: xterm
+
+jobs:
+
+  lint:
+    executor: node/default
+    resource_class: medium
+    steps:
+      - checkout
+      - node/install-packages
+      - run: npm run lint 
+
+  typecheck:
+    executor: node/default
+    resource_class: medium
+    steps:
+      - checkout
+      - node/install-packages
+      - run: npm run lint
+
+
+  test:
+      executor: node/default
+      resource_class: medium
+      steps:
+        - checkout
+        - node/install-packages
+        - run: npm run test --coverage
+
+  
+  build:
+    executor: node/default
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Install FLY
+          command: |
+            curl -L https://fly.io/install.sh | sh
+                
+      - run:
+          name: Authenticate FLY Registry
+          command: /home/circleci/.fly/bin/flyctl auth docker
+
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
+
+      - run:
+          name: Build application Docker image
+          command: |
+            docker build -t "registry.fly.io/${FLY_APP_NAME}:${CIRCLE_SHA1}" .
+      - run:
+          name: Push application Docker image
+          command: docker push "registry.fly.io/${FLY_APP_NAME}:${CIRCLE_SHA1}"
+
+
+  deploy:
+    executor: node/default
+    resource_class: medium
+    steps:
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - deploy:
+                name: Deploy Fly
+                command: /home/circleci/.fly/bin/flyctl deploy -i registry.fly.io/${FLY_APP_NAME}:${CIRCLE_SHA1} -a ${FLY_APP_NAME}
+      - when:
+          condition:
+            equal: [ staging, << pipeline.git.branch >> ]
+          steps:
+            - deploy:
+                name: Deploy Fly
+                command: /home/circleci/.fly/bin/flyctl deploy -i registry.fly.io/${FLY_APP_NAME}:${CIRCLE_SHA1}-staging -a ${FLY_APP_NAME}
+
+
+workflows:
+  build-test-and-deploy:
+    when:
+      or:
+        - equal: [ staging, << pipeline.git.branch >> ]
+        - equal: [ main, << pipeline.git.branch >> ]
+    jobs:
+      - lint
+      - typecheck
+      - test
+      - cypress/run:
+          executor: cypress-node-16
+          pre-steps:
+              - run:
+                  name: Install Docker Compose 
+                  environment:
+                    COMPOSE_VERSION: '1.29.2'
+                  command: |
+                    curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
+                    chmod +x ~/docker-compose
+                    sudo mv ~/docker-compose /usr/local/bin/docker-compose
+              - setup_remote_docker
+            
+              - run:
+                  name: Setup env
+                  command: cp .env.example .env
+              - node/install-packages
+              - run:
+                  name: 🐳 Docker compose
+                  command: docker-compose up -d && sleep 3
+
+              - run:
+                    name: 🛠 Setup Database
+                    command: npx prisma migrate reset --force
+
+              - run:
+                  name: 🌱 Seed the Database
+                  command: npx prisma db seed
+
+              - run:
+                  name: ⚙️ Build
+                  command: npm run build
+
+          store_artifacts: true
+          start: npm run start:mocks
+          wait-on: 'http://localhost:8811'
+      - build
+      - deploy:
+          requires:
+            - lint
+            - typecheck
+            - test
+            - cypress/run
+            - build
