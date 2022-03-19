@@ -1,12 +1,12 @@
 version: "3.7"
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:13
     restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=folk-stack-template
     ports:
       - "5432:5432"
     volumes:
