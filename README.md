@@ -85,8 +85,14 @@ Prior to your first deployment, you'll need to do a few things:
   ```
 
 - Create a new [GitHub Repository](https://repo.new)
+  
+- Link the repo to a CircleCI organization
 
-- Add a `FLY_API_TOKEN` to your GitHub repo. To do this, go to your user settings on Fly and create a new [token](https://web.fly.io/user/personal_access_tokens/new), then add it to [your repo secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets) with the name `FLY_API_TOKEN`.
+- Set up CircleCI
+  - add a `FLY_API_TOKEN` to your CircleCI project. To do this, go to your user settings on Fly and create a new [token](https://web.fly.io/user/personal_access_tokens/new), then add it to [your project secrets](https://circleci.com/docs/2.0/env-vars/) with the name `FLY_API_TOKEN`.
+  - add a `FLY_APP_NAME` to your CircleCI project. The environmant variable to set is `FLY_APP_NAME=folk-stack-template`
+
+
 
 - Add a `SESSION_SECRET` to your fly app secrets, to do this you can run the following commands:
 
@@ -109,6 +115,7 @@ Prior to your first deployment, you'll need to do a few things:
 
   Fly will take care of setting the DATABASE_URL secret for you.
 
+
 Now that every is set up you can commit and push your changes to your repo. Every commit to your `main` branch will trigger a deployment to your production environment, and every commit to your `dev` branch will trigger a deployment to your staging environment.
 
 ### Multi-region deploys
@@ -123,9 +130,10 @@ Install the [ModHeader](https://modheader.com/) browser extension (or something 
 
 You can check the `x-fly-region` header on the response to know which region your request was handled by.
 
-## GitHub Actions
+## Circleci Pipeline
+ We use Circleci for continuous integration and deployment. Anything that gets into the `main` branch will be deployed to production after running tests/build/etc. Anything in the `dev` branch will be deployed to staging.
 
-We use GitHub Actions for continuous integration and deployment. Anything that gets into the `main` branch will be deployed to production after running tests/build/etc. Anything in the `dev` branch will be deployed to staging.
+
 
 ## Testing
 
