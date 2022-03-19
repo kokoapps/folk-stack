@@ -1,4 +1,4 @@
-app = "foolk-stack-template"
+app = "folk-stack-template"
 
 kill_signal = "SIGINT"
 kill_timeout = 5
