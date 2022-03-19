@@ -1,7 +1,8 @@
 import { createContext, PropsWithChildren, useContext } from "react";
 import { Cookie } from "remix";
+import { gdprConsentCookie } from "./cookies";
 
-type GDPRConsentState = {
+export type GDPRConsentState = {
   consent: "granted" | "denied" | "unknown";
   consentString: string;
   timestamp: number;
@@ -10,7 +11,7 @@ type GDPRConsentState = {
 type GDPRConsentOptions = {};
 
 export class GDPRConsent {
-  constructor(private cookie: Cookie, private options: GDPRConsentOptions) {}
+  constructor(private cookie: Cookie, private options?: GDPRConsentOptions) {}
 
   async getConsentState(request: Request): Promise<GDPRConsentState> {
     return (
@@ -19,26 +20,23 @@ export class GDPRConsent {
         consentString: "unknown",
         timestamp: 0,
       }
-    ).consent;
+    );
   }
 
   public grantAll(options: { successRedirect?: string }): Promise<Response>;
-  public grantAll(options: never): Promise<string>;
-  public async grantAll({
-    successRedirect,
-  }: {
-    successRedirect?: string;
-  }): Promise<Response | string> {
+  public grantAll(options?: never): Promise<string>;
+  //@ts-ignore
+  public async grantAll(options): Promise<Response | string> {
     let cookie: GDPRConsentState = {
       consent: "granted",
       consentString: "granted",
       timestamp: Date.now(),
     };
-    if (successRedirect) {
+    if (options?.successRedirect) {
       return new Response("", {
         status: 302,
         headers: {
-          Location: successRedirect,
+          Location: options?.successRedirect,
           "Set-Cookie": await this.cookie.serialize(cookie),
         },
       });
@@ -65,3 +63,5 @@ export let useGDPRConsent = () => {
   }
   return consent;
 };
+
+export let gdprConsent = new GDPRConsent(gdprConsentCookie);
