@@ -3,6 +3,8 @@ node_modules
 /build
 /public/build
 .env
+.env.*
+!.env.example
 
 /cypress/screenshots
 /cypress/videos
