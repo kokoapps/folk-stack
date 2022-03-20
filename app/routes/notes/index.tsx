@@ -1,5 +1,5 @@
 import { Link } from "remix";
-
+export type { Note } from "@prisma/client";
 export default function NoteIndexPage() {
   return (
     <p>
