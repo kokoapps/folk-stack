@@ -9,7 +9,7 @@ export class NotesRepository implements INotesReposirory {
       where: { id: note.id, userId: note.userId },
     });
   }
-  getNoteListItems(userId: string): Promise<Note[]> {
+  getNoteListItems({ userId }: { userId: Note["userId"] }): Promise<Note[]> {
     return this.db.note.findMany({ where: { userId } });
   }
   getNotes(): Promise<Note[]> {

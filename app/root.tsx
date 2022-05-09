@@ -15,11 +15,15 @@ import { SpeakerphoneIcon, XIcon } from "@heroicons/react/outline";
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { getUser } from "./session.server";
 import { i18n } from "./i18n.server";
-import { Language, useSetupTranslations } from "remix-i18next";
+import { useChangeLanguage } from "remix-i18next";
 import { gdprConsent, GDPRConsentState, GDPRProvider } from "./gdpr";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
+};
+
+export let handle = {
+  i18n: ["common"],
 };
 
 export const meta: MetaFunction = () => ({
@@ -32,7 +36,6 @@ type LoaderData = {
   user: Awaited<ReturnType<typeof getUser>>;
   locale: string;
   gdprConsent: GDPRConsentState;
-  i18n: Record<string, Language>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -42,14 +45,12 @@ export const loader: LoaderFunction = async ({ request }) => {
     user: await getUser(request),
     gdprConsent: await gdprConsent.getConsentState(request),
     locale,
-    i18n: await i18n.getTranslations(request, "common"),
   });
 };
 
 export default function App() {
   let { locale, gdprConsent } = useLoaderData() as LoaderData;
-  useSetupTranslations(locale);
-
+  useChangeLanguage(locale);
   const consentFetcher = useFetcher();
 
   let dir = locale === "he" ? "rtl" : "ltr";
