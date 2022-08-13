@@ -1,6 +1,6 @@
-import type { LoaderFunction, ActionFunction } from "remix";
-import { redirect } from "remix";
-import { json, useLoaderData, useCatch, Form } from "remix";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { Form, useCatch, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { Note, notesReposirory } from "~/lib/notes";
 import { requireUserId } from "~/session.server";

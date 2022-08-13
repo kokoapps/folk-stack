@@ -1,4 +1,4 @@
-import { ActionFunction } from "remix";
+import { ActionFunction } from "@remix-run/node";
 import { gdprConsent } from "~/gdpr";
 
 export let action: ActionFunction = async () => {

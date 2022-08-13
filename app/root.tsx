@@ -1,5 +1,7 @@
+import type { LinksFunction, LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+
 import {
-  json,
   Links,
   LiveReload,
   Meta,
@@ -8,8 +10,8 @@ import {
   ScrollRestoration,
   useFetcher,
   useLoaderData,
-} from "remix";
-import type { LinksFunction, MetaFunction, LoaderFunction } from "remix";
+} from "@remix-run/react";
+
 import { SpeakerphoneIcon, XIcon } from "@heroicons/react/outline";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";

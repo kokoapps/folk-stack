@@ -19,7 +19,6 @@
     "docker": "docker-compose up -d",
     "format": "prettier --write .",
     "generate:css": "tailwindcss -o ./app/styles/tailwind.css",
-    "postinstall": "remix setup node",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "setup": "prisma migrate dev && prisma db seed",
     "start": "cross-env NODE_ENV=production node ./build/server.js",
@@ -57,7 +56,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^11.18.3",
-    "remix": "1.6.8",
     "remix-i18next": "^4.1.1",
     "tiny-invariant": "^1.2.0"
   },

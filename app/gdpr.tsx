@@ -1,5 +1,5 @@
 import { createContext, PropsWithChildren, useContext } from "react";
-import { Cookie } from "remix";
+import { Cookie } from "@remix-run/node";
 import { gdprConsentCookie } from "./cookies";
 
 export type GDPRConsentState = {

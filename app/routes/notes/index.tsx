@@ -1,4 +1,4 @@
-import { Link } from "remix";
+import { Link } from "@remix-run/react";
 export type { Note } from "@prisma/client";
 export default function NoteIndexPage() {
   return (

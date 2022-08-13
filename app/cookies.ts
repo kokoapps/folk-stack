@@ -1,4 +1,4 @@
-import { createCookie } from "remix";
+import { createCookie } from "@remix-run/node";
 import type { Cookie, CookieSerializeOptions } from "@remix-run/node";
 
 function createCookieHandlers<CookieValue = any>(cookie: Cookie) {
