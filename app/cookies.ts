@@ -25,12 +25,6 @@ function createCookieHandlers<CookieValue = any>(cookie: Cookie) {
   return [getValue, getHeaders] as any as [typeof getValue, typeof getHeaders];
 }
 
-export let gdprConsentCookie = createCookie("gdpr-consent", {
-  maxAge: 31536000, // 1 year
-  path: "/",
-  sameSite: "lax",
-});
-
 export let localeCookie = createCookie("locale", {
   path: "/",
   sameSite: "lax",
