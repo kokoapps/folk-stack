@@ -1,5 +1,9 @@
 import * as React from "react";
-import type { ActionFunction, LoaderFunction, MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 
@@ -7,6 +11,7 @@ import { getUserId, createUserSession } from "~/session.server";
 
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { validateEmail } from "~/utils";
+import { auth } from "~/lib/fusionauth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
@@ -48,7 +53,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const existingUser = await getUserByEmail(email);
+  const existingUser = await auth.retrieveUserByEmail(email);
   if (existingUser) {
     return json<ActionData>(
       { errors: { email: "A user already exists with this email" } },
@@ -56,7 +61,9 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const user = await createUser(email, password);
+  const { response: user } = await auth.register(email, {
+    sendSetPasswordEmail: true,
+  });
 
   return createUserSession({
     request,
