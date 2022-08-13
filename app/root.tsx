@@ -30,7 +30,7 @@ export let handle = {
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "Remix Notes",
+  title: "Remix",
   viewport: "width=device-width,initial-scale=1",
 });
 
