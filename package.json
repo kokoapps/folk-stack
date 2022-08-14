@@ -103,7 +103,6 @@
     "babel-loader": "^8.2.5",
     "c8": "^7.11.0",
     "cypress": "^10.3.0",
-    "test:e2e:run": "cross-env PORT=8811 start-server-and-test start:mocks http://localhost:8811 \"npx cypress run\"",
     "dotenv": "^16.0.1",
     "esbuild": "^0.14.49",
     "eslint": "^8.11.0",
