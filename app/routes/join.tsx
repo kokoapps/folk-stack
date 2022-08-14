@@ -7,11 +7,12 @@ import type {
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 
-import { getUserId, createUserSession } from "~/session.server";
+import { getUserId, createUserSession } from "~/lib/session.server";
 
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { validateEmail } from "~/utils";
-import { auth } from "~/lib/fusionauth.server";
+import sendMail from "emails";
+import Welcome from "emails/Welcome";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
@@ -53,7 +54,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const existingUser = await auth.retrieveUserByEmail(email);
+  const existingUser = await getUserByEmail(email);
   if (existingUser) {
     return json<ActionData>(
       { errors: { email: "A user already exists with this email" } },
@@ -61,13 +62,17 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const { response: user } = await auth.register(email, {
-    sendSetPasswordEmail: true,
+  const user = await createUser(email, password);
+
+  await sendMail({
+    subject: "Welcome",
+    to: email,
+    component: <Welcome name={email} />,
   });
 
   return createUserSession({
     request,
-    userId: user.id,
+    user: user,
     remember: false,
     redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
   });

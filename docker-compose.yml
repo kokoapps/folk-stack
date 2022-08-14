@@ -20,9 +20,9 @@ services:
     volumes:
       - ./.cache/redis:/data
 
-  temporalite:
-    build: https://github.com/temporalio/temporalite.git#main
-    ports:
-      - 7233:7233
-      - 8233:8233
+  # temporalite:
+  #   build: https://github.com/temporalio/temporalite.git#main
+  #   ports:
+  #     - 7233:7233
+  #     - 8233:8233
       

@@ -16,8 +16,8 @@ import {
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
-import { getUser } from "./session.server";
-import { i18n } from "./i18n.server";
+import { getUser } from "./lib/session.server";
+import { i18n } from "./lib/i18n.server";
 import { useChangeLanguage } from "remix-i18next";
 
 export const links: LinksFunction = () => {

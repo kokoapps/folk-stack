@@ -1,11 +1,16 @@
 import * as React from "react";
-import type { ActionFunction, LoaderFunction, MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 
-import { createUserSession, getUserId } from "~/session.server";
+import { createUserSession, getUserId } from "~/lib/session.server";
 import { verifyLogin } from "~/models/user.server";
 import { validateEmail } from "~/utils";
+import { authenticator } from "~/lib/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
@@ -48,7 +53,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const user = await verifyLogin(email, password);
+  const user = await authenticator.authenticate("local", request);
 
   if (!user) {
     return json<ActionData>(
@@ -59,9 +64,9 @@ export const action: ActionFunction = async ({ request }) => {
 
   return createUserSession({
     request,
-    userId: user.id,
+    user,
     remember: remember === "on" ? true : false,
-    redirectTo: typeof redirectTo === "string" ? redirectTo : "/notes",
+    redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
   });
 };
 
