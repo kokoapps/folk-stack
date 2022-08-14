@@ -6,7 +6,7 @@
 
 import { parse } from "cookie";
 import { installGlobals } from "@remix-run/node";
-import { createUserSession } from "~/session.server";
+import { createUserSession } from "~/lib/session.server";
 import { createUser } from "~/models/user.server";
 
 installGlobals();
@@ -23,7 +23,7 @@ async function createAndLogin(email: string) {
 
   const response = await createUserSession({
     request: new Request("test://test"),
-    userId: user.id,
+    user,
     remember: false,
     redirectTo: "/",
   });

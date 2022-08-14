@@ -1,5 +1,5 @@
 import { validateEmail } from "./utils";
-
+import { test, expect } from "vitest";
 test("validateEmail returns false for non-emails", () => {
   expect(validateEmail(undefined)).toBe(false);
   expect(validateEmail(null)).toBe(false);
