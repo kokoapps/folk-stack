@@ -22,10 +22,7 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
   const EXAMPLE_ENV_PATH = path.join(rootDirectory, ".env.example");
   const ENV_PATH = path.join(rootDirectory, ".env");
   const PACKAGE_JSON_PATH = path.join(rootDirectory, "package.json");
-  const DEPLOY_YAML_PATH = path.join(
-    rootDirectory,
-    ".github/workflows/deploy.yml"
-  );
+  const DEPLOY_YAML_PATH = path.join(rootDirectory, ".circleci/config.yml");
   const DOCKERFILE_PATH = path.join(rootDirectory, "Dockerfile");
 
   const REPLACER = "blues-stack-template";

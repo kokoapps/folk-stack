@@ -81,7 +81,7 @@ jobs:
                 command: /home/circleci/.fly/bin/flyctl deploy -i registry.fly.io/${FLY_APP_NAME}:${CIRCLE_SHA1} -a ${FLY_APP_NAME}
       - when:
           condition:
-            equal: [ staging, << pipeline.git.branch >> ]
+            equal: [ dev, << pipeline.git.branch >> ]
           steps:
             - deploy:
                 name: Deploy Fly
@@ -92,7 +92,7 @@ workflows:
   build-test-and-deploy:
     when:
       or:
-        - equal: [ staging, << pipeline.git.branch >> ]
+        - equal: [ dev, << pipeline.git.branch >> ]
         - equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - lint
