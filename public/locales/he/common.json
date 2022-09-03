@@ -1,1 +1,21 @@
-{}
+{
+  "sign_in_to_your_account": "התחברות",
+  "or_register": "או <2>הצטרפו עכשיו ל14 ימי ניסיון</2>",
+  "sign_in_with": "התחברות עם",
+  "sign_in_with_facebook": "התחברות עם פייסבוק",
+  "sign_in_with_twitter": "התחברות עם טוויטר",
+  "sign_in_with_github": "התחברות עם גיטהאב",
+  "or_sign_in_with_credentials": "או התחברות עם",
+  "email_address": "כתובת דואר אלקטרוני",
+  "password": "סיסמה",
+  "remember_me": "זכור אותי",
+  "forgot_password": "שכחת סיסמה?",
+  "sign_in": "התחברות",
+  "email_address_is_invalid": "",
+  "password_is_too_short": "",
+  "invalid_email_or_assword": "",
+  "create_a_new_account": "חשבון חדש",
+  "have_an_account": "יש לי חשבון",
+  "accept_terms_and_conditions": "אני מאשר את <2>התקנון</2> ואת <6>מדיניות הפרטיות</6>",
+  "register": "הרשמה"
+}

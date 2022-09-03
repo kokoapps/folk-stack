@@ -52,7 +52,7 @@ export default function App() {
   let dir = locale === "he" ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={dir} className="h-full">
+    <html lang={locale} dir={dir} className="h-full bg-white">
       <head>
         <Meta />
         <Links />
