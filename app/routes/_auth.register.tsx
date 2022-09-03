@@ -15,69 +15,14 @@ import sendMail from "emails";
 import Welcome from "emails/Welcome";
 import { Trans } from "react-i18next";
 import Link from "~/components/Link";
+import { i18n } from "~/lib/i18n.server";
+import { zfd } from "zod-form-data";
+import { z } from "zod";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
   if (userId) return redirect("/");
   return json({});
-};
-
-interface ActionData {
-  errors: {
-    email?: string;
-    password?: string;
-  };
-}
-
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
-  const redirectTo = formData.get("redirectTo");
-
-  if (!validateEmail(email)) {
-    return json<ActionData>(
-      { errors: { email: "Email is invalid" } },
-      { status: 400 }
-    );
-  }
-
-  if (typeof password !== "string") {
-    return json<ActionData>(
-      { errors: { password: "Password is required" } },
-      { status: 400 }
-    );
-  }
-
-  if (password.length < 8) {
-    return json<ActionData>(
-      { errors: { password: "Password is too short" } },
-      { status: 400 }
-    );
-  }
-
-  const existingUser = await getUserByEmail(email);
-  if (existingUser) {
-    return json<ActionData>(
-      { errors: { email: "A user already exists with this email" } },
-      { status: 400 }
-    );
-  }
-
-  const user = await createUser(email, password);
-
-  await sendMail({
-    subject: "Welcome",
-    to: email,
-    component: <Welcome name={email} />,
-  });
-
-  return createUserSession({
-    request,
-    user: user,
-    remember: false,
-    redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
-  });
 };
 
 export const meta: MetaFunction = () => {
@@ -167,13 +112,13 @@ export default function Join() {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
-                  id="remember-me"
-                  name="remember-me"
+                  id="acceptTermsAndConditions"
+                  name="acceptTermsAndConditions"
                   type="checkbox"
                   className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <label
-                  htmlFor="remember-me"
+                  htmlFor="acceptTermsAndConditions"
                   className="block text-sm text-gray-900 ltr:ml-2 rtl:mr-2"
                 >
                   <Trans i18nKey="accept_terms_and_conditions">
@@ -212,3 +157,68 @@ export default function Join() {
     </>
   );
 }
+
+interface ActionData {
+  errors: {
+    email?: string;
+    password?: string;
+    acceptTermsAndConditions?: string;
+  };
+}
+
+export const action: ActionFunction = async ({ request }) => {
+  let t = await i18n.getFixedT(request);
+
+  const schema = zfd.formData({
+    email: zfd.text(z.string().email(t("email_address_is_invalid"))),
+    password: zfd.text(z.string().min(8, t("password_is_too_short"))),
+    acceptTermsAndConditions: zfd.checkbox(),
+    redirectTo: zfd.text(z.string().optional()),
+  });
+
+  const formData = await request.formData();
+  const result = await schema.safeParseAsync(formData);
+
+  if (!result.success) {
+    return json(
+      { errors: result.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+
+  const { email, password, redirectTo, acceptTermsAndConditions } = result.data;
+
+  const existingUser = await getUserByEmail(email);
+  if (existingUser) {
+    return json<ActionData>(
+      { errors: { email: "A user already exists with this email" } },
+      { status: 400 }
+    );
+  }
+
+  if (!result.data.acceptTermsAndConditions) {
+    return json<ActionData>(
+      {
+        errors: {
+          acceptTermsAndConditions: "You must accept the terms and conditions",
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  const user = await createUser(email, password);
+
+  await sendMail({
+    subject: "Welcome",
+    to: email,
+    component: <Welcome name={email} />,
+  });
+
+  return createUserSession({
+    request,
+    user: user,
+    remember: false,
+    redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
+  });
+};
