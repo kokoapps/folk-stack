@@ -1,14 +1,14 @@
 import * as React from "react";
 import type { ActionArgs, LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useSearchParams } from "@remix-run/react";
+import { Form, useActionData } from "@remix-run/react";
 
 import { createUserSession, getUserId } from "~/lib/session.server";
-import { validateEmail } from "~/utils";
+
 import { authenticator } from "~/lib/auth.server";
 import { Trans } from "react-i18next";
 import Link from "~/components/Link";
-import Button from "~/components/Button";
+
 import { i18n } from "~/lib/i18n.server";
 import { zfd } from "zod-form-data";
 import { z } from "zod";

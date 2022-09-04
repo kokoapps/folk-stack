@@ -10,7 +10,7 @@ import { Form, useActionData, useSearchParams } from "@remix-run/react";
 import { getUserId, createUserSession } from "~/lib/session.server";
 
 import { createUser, getUserByEmail } from "~/models/user.server";
-import { validateEmail } from "~/utils";
+
 import sendMail from "emails";
 import Welcome from "emails/Welcome";
 import { Trans } from "react-i18next";
@@ -196,7 +196,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  if (!result.data.acceptTermsAndConditions) {
+  if (!acceptTermsAndConditions) {
     return json<ActionData>(
       {
         errors: {

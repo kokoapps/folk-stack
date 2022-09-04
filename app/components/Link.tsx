@@ -7,6 +7,7 @@ function Link<T extends React.ElementType = typeof RemixLink>(
 ) {
   let Component = props.as || RemixLink;
   return (
+    // @ts-ignore
     <Component {...props} className={clsx(getBaseStyles(props), "underline")} />
   );
 }
