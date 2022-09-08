@@ -5,7 +5,7 @@ const transport = nodemailer.createTransport({ jsonTransport: true });
 
 const sendMail = buildSendMail({
   transport,
-  defaultFrom: " Folk Stack <noreply@folk-stack-template.com>",
+  defaultFrom: "folk-stack-template <noreply@folk-stack-template.com>",
 });
 
 export default sendMail;

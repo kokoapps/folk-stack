@@ -65,7 +65,7 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
     APP_NAME
   );
 
-  const newEmailSender = emailSender.replace(REPLACER, APP_NAME);
+  const newEmailSender = emailSender.replaceAll(REPLACER, APP_NAME);
 
   let saveDeploy = null;
   if (!isTypeScript) {
@@ -111,6 +111,7 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
       path.join(rootDirectory, "remix.init", "gitignore"),
       path.join(rootDirectory, ".gitignore")
     ),
+    fs.unlink(EXAMPLE_ENV_PATH),
   ]);
 
   execSync("npm run format -- --loglevel warn", {
