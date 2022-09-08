@@ -2,8 +2,10 @@ import path from "path";
 import express from "express";
 import compression from "compression";
 import morgan from "morgan";
-import { createRequestHandler } from "@remix-run/express";
+import { createRequestHandler as CRH } from "@remix-run/express";
+import { wrapExpressCreateRequestHandler } from "@sentry/remix";
 
+const createRequestHandler = wrapExpressCreateRequestHandler(CRH);
 const app = express();
 
 app.use((req, res, next) => {

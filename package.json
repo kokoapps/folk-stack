@@ -47,6 +47,7 @@
     "@remix-run/express": "*",
     "@remix-run/node": "*",
     "@remix-run/react": "*",
+    "@sentry/remix": "^7.12.1",
     "clsx": "^1.2.1",
     "compression": "^1.7.4",
     "cross-env": "^7.0.3",

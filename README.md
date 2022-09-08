@@ -19,6 +19,7 @@ npx create-remix --template remix-run/folk-stack
 - Styling with [Tailwind](https://tailwindcss.com/)
 - End-to-end testing with [Cypress](https://cypress.io)
 - Local third party request mocking with [MSW](https://mswjs.io)
+- Error monitoring with [Sentry](https://sentry.io)
 - Unit testing with [Vitest](https://vitest.dev) and [Testing Library](https://testing-library.com)
 - Code formatting with [Prettier](https://prettier.io)
 - Linting with [ESLint](https://eslint.org)
@@ -62,9 +63,11 @@ This is a pretty simple note-taking app, but it's a good example of how you can 
 - creating users, and logging in and out [./app/models/user.server.ts](./app/models/user.server.ts)
 - user sessions, and verifying them [./app/session.server.ts](./app/session.server.ts)
 
+
+
 ## Deployment
 
-This Remix Stack comes with two GitHub Actions that handle automatically deploying your app to production and staging environments.
+This Remix Stack comes with two CircleCi Pipeline that handle automatically deploying your app to production and staging environments.
 
 Prior to your first deployment, you'll need to do a few things:
 
@@ -90,8 +93,17 @@ Prior to your first deployment, you'll need to do a few things:
 - Set up CircleCI
   - add a `FLY_API_TOKEN` to your CircleCI project. To do this, go to your user settings on Fly and create a new [token](https://web.fly.io/user/personal_access_tokens/new), then add it to [your project secrets](https://circleci.com/docs/2.0/env-vars/) with the name `FLY_API_TOKEN`.
   - add a `FLY_APP_NAME` to your CircleCI project. The environmant variable to set is `FLY_APP_NAME=folk-stack-template`
-
-
+  
+- Set Up Sentry
+  - Get yout app DSN
+    Login into your Sentry account and go to your app Client Keys settings (create an app if not exists yet).
+    To get to the Client Keys screen go to `Settings > Projects > [your project] > Client Keys.
+    Copy your DSN
+  - Add a `SENTRY_DSN` and `SENTRY_ENVIRONMENT` to your fly app secrets, to do this you can run the following commands:
+    ```sh
+    fly secrets set SENTRY_DSN=<YOUR_DSN> SENREY_ENVIRONMENT=production --app folk-stack-template
+    fly secrets set SENTRY_DSN=<YOUR_DSN> SENREY_ENVIRONMENT=staging --app folk-stack-template-staging
+    ```
 
 - Add a `SESSION_SECRET` to your fly app secrets, to do this you can run the following commands:
 

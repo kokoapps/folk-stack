@@ -3,6 +3,10 @@ import Backend from "i18next-fs-backend";
 import { resolve } from "node:path";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import { i18n } from "~/lib/i18n.server";
+import * as Sentry from "@sentry/remix";
+import { useEffect } from "react";
+import { useLocation } from "react-router";
+import { useMatches } from "@remix-run/react";
 
 import { PassThrough } from "stream";
 import { renderToPipeableStream } from "react-dom/server";
@@ -10,6 +14,24 @@ import { RemixServer } from "@remix-run/react";
 import { Response } from "@remix-run/node";
 import type { EntryContext, Headers } from "@remix-run/node";
 import isbot from "isbot";
+import { getRequiredServerEnvVar } from "./lib/env.server";
+import { db } from "./db.server";
+
+Sentry.init({
+  dsn: getRequiredServerEnvVar("SENTRY_DSN"),
+  tracesSampleRate: 1,
+  environment: getRequiredServerEnvVar("SENTRY_ENVIRONMENT", "development"),
+  integrations: [
+    new Sentry.BrowserTracing({
+      routingInstrumentation: Sentry.remixRouterInstrumentation(
+        useEffect,
+        useLocation,
+        useMatches
+      ),
+    }),
+    new Sentry.Integrations.Prisma({ client: db }),
+  ],
+});
 
 const ABORT_DELAY = 5000;
 

@@ -4,6 +4,7 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import { withSentry } from "@sentry/remix";
 
 import {
   Links,
@@ -21,6 +22,7 @@ import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { getUser } from "./lib/session.server";
 import { i18n } from "./lib/i18n.server";
 import { useChangeLanguage } from "remix-i18next";
+import { getRequiredServerEnvVar } from "./lib/env.server";
 
 export const links: LinksFunction = () => {
   return [
@@ -41,15 +43,21 @@ export const meta: MetaFunction = () => ({
 
 export const loader: LoaderFunction = async ({ request }) => {
   let locale = await i18n.getLocale(request);
-
+  let ENVS = JSON.stringify({
+    SENTRY_DSN: getRequiredServerEnvVar("SENTRY_DSN"),
+    SENTRY_ENVIRONMENT: getRequiredServerEnvVar(
+      "SENTRY_ENVIRONMENT",
+      "development"
+    ),
+  });
   return json({
     user: await getUser(request),
-
+    ENVS,
     locale,
   });
 };
 
-export default function App() {
+function App() {
   let { locale } = useLoaderData<typeof loader>();
   useChangeLanguage(locale);
   // const consentFetcher = useFetcher();
@@ -73,3 +81,5 @@ export default function App() {
     </html>
   );
 }
+
+export default withSentry(App);
