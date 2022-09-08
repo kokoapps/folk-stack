@@ -5,7 +5,7 @@ import { FormStrategy } from "remix-auth-form";
 import { z } from "zod";
 // Create an instance of the authenticator, pass a generic with what
 // strategies will return and will store in the session
-export let authenticator = new Authenticator<User>(sessionStorage, {
+export let authenticator = new Authenticator<User | null>(sessionStorage, {
   sessionKey: USER_SESSION_KEY,
 });
 
@@ -16,9 +16,7 @@ let schema = z.object({
 const localStrategy = new FormStrategy(async ({ form }) => {
   let { email, password } = schema.parse(Object.fromEntries(form));
   let user = await verifyLogin(email, password);
-  if (!user) {
-    throw new Error("Invalid credentials");
-  }
+
   return user;
 });
 

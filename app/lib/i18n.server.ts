@@ -11,6 +11,7 @@ export let i18n = new RemixI18Next({
     supportedLanguages: ["he", "en"], // here configure your supported languages
     fallbackLanguage: "he",
     cookie: localeCookie,
+    order: ["cookie", "header"],
   },
 
   i18next: {
