@@ -1,23 +1,45 @@
 import * as React from "react";
-import type { ActionArgs, LoaderFunction, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useSearchParams } from "@remix-run/react";
-
-import { createUserSession, getUserId } from "~/lib/session.server";
+import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
+import { toast } from "react-toastify";
+import {
+  commitSession,
+  createUserSession,
+  getSession,
+} from "~/lib/session.server";
 
 import { authenticator } from "~/lib/auth.server";
 import { Trans } from "react-i18next";
-import Link from "~/components/Link";
-import Button from "~/components/Button";
+import { ExternalLink, Link } from "~/components/Link";
+
 import { i18n } from "~/lib/i18n.server";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const userId = await getUserId(request);
-  if (userId) return redirect("/");
-  return json({});
-};
+export async function loader({ request }: LoaderArgs) {
+  await authenticator.isAuthenticated(request.clone(), {
+    successRedirect: "/",
+  });
+  let session = await getSession(request);
+  let resetPasswordFlash = session.get("resetPasswordFlash");
+
+  return json(
+    {
+      resetPasswordFlash,
+    },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    }
+  );
+}
 
 export const meta: MetaFunction = () => {
   return {
@@ -27,10 +49,19 @@ export const meta: MetaFunction = () => {
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/notes";
+  const { resetPasswordFlash } = useLoaderData<typeof loader>();
+  const redirectTo = searchParams.get("redirectTo") || "/";
   const actionData = useActionData() as ActionData;
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (resetPasswordFlash) {
+      toast.success(resetPasswordFlash, {
+        toastId: "resetPasswordFlash",
+      });
+    }
+  }, [resetPasswordFlash]);
 
   React.useEffect(() => {
     if (actionData?.errors?.email) {
@@ -71,10 +102,7 @@ export default function LoginPage() {
 
             <div className="mt-1 grid grid-cols-3 gap-3">
               <div>
-                <Button
-                  as="a"
-                  className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
-                >
+                <ExternalLink className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50">
                   <span className="sr-only">
                     <Trans i18nKey="sign_in_with_facebook">
                       Sign in with Facebook
@@ -92,14 +120,11 @@ export default function LoginPage() {
                       clipRule="evenodd"
                     />
                   </svg>
-                </Button>
+                </ExternalLink>
               </div>
 
               <div>
-                <Button
-                  as="a"
-                  className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
-                >
+                <ExternalLink className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50">
                   <span className="sr-only">
                     <Trans i18nKey="sign_in_with_twitter">
                       Sign in with Twitter
@@ -113,14 +138,11 @@ export default function LoginPage() {
                   >
                     <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
                   </svg>
-                </Button>
+                </ExternalLink>
               </div>
 
               <div>
-                <Button
-                  as="a"
-                  className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
-                >
+                <ExternalLink className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50">
                   <span className="sr-only">
                     <Trans i18nKey="sign_in_with_github">
                       Sign in with GitHub
@@ -138,7 +160,7 @@ export default function LoginPage() {
                       clipRule="evenodd"
                     />
                   </svg>
-                </Button>
+                </ExternalLink>
               </div>
             </div>
           </div>

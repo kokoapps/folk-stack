@@ -12,11 +12,12 @@ describe("smoke tests", () => {
     };
     cy.then(() => ({ email: loginForm.email })).as("user");
 
-    cy.visitAndCheck("/join");
+    cy.visitAndCheck("/register");
 
-    cy.findByRole("textbox", { name: /email/i }).type(loginForm.email);
-    cy.findByLabelText(/password/i).type(loginForm.password);
-    cy.findByRole("button", { name: /create account/i }).click();
+    cy.findByTestId(/email/i).type(loginForm.email);
+    cy.findByTestId(/password/i).type(loginForm.password);
+    cy.findByTestId(/acceptTerms/i).click();
+    cy.findByTestId("submit").click();
 
     cy.location("pathname").should("eq", "/");
   });

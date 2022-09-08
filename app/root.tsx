@@ -14,6 +14,8 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
+import { ToastContainer } from "react-toastify";
+import toastifyStyles from "react-toastify/dist/ReactToastify.css";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { getUser } from "./lib/session.server";
@@ -21,7 +23,10 @@ import { i18n } from "./lib/i18n.server";
 import { useChangeLanguage } from "remix-i18next";
 
 export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
+  return [
+    { rel: "stylesheet", href: tailwindStylesheetUrl },
+    { rel: "stylesheet", href: toastifyStyles },
+  ];
 };
 
 export let handle = {
@@ -61,6 +66,7 @@ export default function App() {
         <Outlet />
 
         <ScrollRestoration />
+        <ToastContainer />
         <Scripts />
         <LiveReload />
       </body>

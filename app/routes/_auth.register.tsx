@@ -14,7 +14,7 @@ import { createUser, getUserByEmail } from "~/models/user.server";
 import sendMail from "emails";
 import Welcome from "emails/Welcome";
 import { Trans } from "react-i18next";
-import Link from "~/components/Link";
+import { ExternalLink, Link } from "~/components/Link";
 import { i18n } from "~/lib/i18n.server";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
@@ -81,9 +81,12 @@ export default function Join() {
               <div className="mt-1">
                 <input
                   id="email"
+                  ref={emailRef}
+                  data-testId="email"
                   name="email"
                   type="email"
                   autoComplete="email"
+                  autoFocus
                   required
                   className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                 />
@@ -101,6 +104,7 @@ export default function Join() {
                 <input
                   id="password"
                   name="password"
+                  data-testId="password"
                   type="password"
                   autoComplete="current-password"
                   required
@@ -112,6 +116,7 @@ export default function Join() {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
+                  data-testId="acceptTerms"
                   id="acceptTermsAndConditions"
                   name="acceptTermsAndConditions"
                   type="checkbox"
@@ -123,29 +128,28 @@ export default function Join() {
                 >
                   <Trans i18nKey="accept_terms_and_conditions">
                     I accept the{" "}
-                    <Link
-                      as="a"
+                    <ExternalLink
                       href="#"
                       target="_blank"
                       rel="noopener noreferer"
                     >
                       terms of use
-                    </Link>{" "}
+                    </ExternalLink>{" "}
                     and the{" "}
-                    <Link
-                      as="a"
+                    <ExternalLink
                       href="#"
                       target="_blank"
                       rel="noopener noreferer"
                     >
                       privacy policy
-                    </Link>
+                    </ExternalLink>
                   </Trans>
                 </label>
               </div>
             </div>
             <input type="hidden" name="redirectTo" value={redirectTo} />
             <button
+              data-testId="submit"
               type="submit"
               className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >

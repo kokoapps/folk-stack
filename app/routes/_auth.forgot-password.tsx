@@ -3,15 +3,18 @@ import type { ActionArgs, LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
-import { createUserSession, getUserId } from "~/lib/session.server";
-
-import { authenticator } from "~/lib/auth.server";
+import { getUserId } from "~/lib/session.server";
 import { Trans } from "react-i18next";
-import Link from "~/components/Link";
+import { Link } from "~/components/Link";
 
 import { i18n } from "~/lib/i18n.server";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
+import { db } from "~/db.server";
+import { add } from "date-fns";
+import sendMail from "~/lib/email.server";
+import TextEmail from "emails/TextEmail";
+import Button from "~/components/Button";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
@@ -26,16 +29,11 @@ export const meta: MetaFunction = () => {
 };
 
 export default function LoginPage() {
-  const actionData = useActionData() as ActionData;
+  const actionData = useActionData() as
+    | { errors: { email: string }; success: never }
+    | { success: true; message: string; errors: null }
+    | null;
   const emailRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (actionData?.errors?.email) {
-      emailRef.current?.focus();
-    } else if (actionData?.errors?.email) {
-      emailRef.current?.focus();
-    }
-  }, [actionData]);
 
   return (
     <>
@@ -84,14 +82,15 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              <Trans i18nKey="send_reset_password_link">
-                Send reset passwork link
-              </Trans>
-            </button>
+            <Button disabled={actionData?.success} type="submit">
+              {actionData?.success ? (
+                actionData.message
+              ) : (
+                <Trans i18nKey="send_reset_password_link">
+                  Send reset passwork link
+                </Trans>
+              )}
+            </Button>
           </Form>
 
           <div className="relative mt-6 ">
@@ -118,23 +117,14 @@ export default function LoginPage() {
   );
 }
 
-interface ActionData {
-  errors?: {
-    email?: string;
-  };
-}
-
-export const action = async ({ request }: ActionArgs) => {
+export async function action({ request }: ActionArgs) {
   let t = await i18n.getFixedT(request);
 
   const schema = zfd.formData({
     email: zfd.text(z.string().email(t("email_address_is_invalid"))),
-    password: zfd.text(z.string().min(8, t("password_is_too_short"))),
-    remember: zfd.checkbox(),
-    redirectTo: zfd.text(z.string().optional()),
   });
 
-  const formData = await request.clone().formData();
+  const formData = await request.formData();
   const result = schema.safeParse(formData);
   if (!result.success) {
     return json(
@@ -147,24 +137,68 @@ export const action = async ({ request }: ActionArgs) => {
     );
   }
 
-  const { remember, redirectTo } = result.data;
-
-  const user = await authenticator.authenticate("local", request);
-
-  if (!user) {
-    return json<ActionData>(
-      { errors: { email: t("invalid_email_or_assword") } },
-      { status: 400 }
+  function accepted() {
+    return json(
+      {
+        success: true,
+        errors: null,
+        message: t("reset_password_email_sent"),
+      },
+      { status: 201 }
     );
   }
 
-  return createUserSession({
-    request,
-    user,
-    remember: remember ? true : false,
-    redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
+  const user = await db.user.findUnique({
+    where: {
+      email: result.data.email,
+    },
+    select: {
+      id: true,
+      email: true,
+    },
   });
-};
+
+  if (!user) {
+    return accepted();
+  }
+
+  let { token } = await db.resetPasswordToken.create({
+    data: {
+      expirationDate: add(new Date(), {
+        minutes: 15,
+      }),
+      user: {
+        connect: {
+          id: user.id,
+        },
+      },
+    },
+  });
+
+  let url = new URL(request.url);
+
+  let link = `${url.origin}/reset-password?token=${token}`;
+
+  await sendMail({
+    to: user.email,
+    subject: "",
+    component: (
+      <TextEmail
+        name={user.email}
+        body={
+          <>
+            We’ve received your request to change your password. Use the link
+            below to set up a new password for your account. This link is only
+            usable once! If you need to, you can reinitiate the password process
+            again <a href={link}>here</a>.
+          </>
+        }
+      />
+    ),
+  });
+
+  return accepted();
+}
 
 // t("invalid_email_or_assword")
 // t("email_address_is_invalid")

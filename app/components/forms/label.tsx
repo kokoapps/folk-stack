@@ -1,10 +1,11 @@
 import clsx from "clsx";
-import { type BaseProps } from "../base";
 
-export default function Label({ className, as, ...props }: BaseProps<"label">) {
-  let Component = as || "label";
+export default function Label({
+  className,
+  ...props
+}: JSX.IntrinsicElements["label"]) {
   return (
-    <Component
+    <label
       className={clsx(
         "block font-medium",
         className,

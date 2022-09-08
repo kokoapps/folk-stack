@@ -13,6 +13,17 @@ export async function getUserByEmail(email: User["email"]) {
   return db.user.findUnique({ where: { email } });
 }
 
+export async function resetPassword(userId: string, password: string) {
+  await db.password.update({
+    where: {
+      userId,
+    },
+    data: {
+      hash: await bcrypt.hash(password, 10),
+    },
+  });
+}
+
 export async function createUser(email: User["email"], password: string) {
   const hashedPassword = await bcrypt.hash(password, 10);
 

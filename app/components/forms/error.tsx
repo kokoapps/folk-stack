@@ -1,6 +1,3 @@
-import { type BaseProps } from "../base";
-
-export default function Error(props: BaseProps<"div">) {
-  let Component = props.as || "div";
-  return <Component className="text-sm text-red-600" {...props} />;
+export default function Error(props: JSX.IntrinsicElements["div"]) {
+  return <div className="text-sm text-red-600" {...props} />;
 }
