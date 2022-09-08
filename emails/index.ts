@@ -7,7 +7,7 @@ const transport = nodemailer.createTransport({
 
 const sendMail = buildSendMail({
   transport,
-  defaultFrom: "noreply@kokoapps.co.il",
+  defaultFrom: "noreply@previewsender.co.il",
 });
 
 export default sendMail;

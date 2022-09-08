@@ -24,6 +24,7 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
   const PACKAGE_JSON_PATH = path.join(rootDirectory, "package.json");
   const DEPLOY_YAML_PATH = path.join(rootDirectory, ".circleci/config.yml");
   const DOCKERFILE_PATH = path.join(rootDirectory, "Dockerfile");
+  const EMAIL_SENDER_PATH = path.join(rootDirectory, "appp/emails.server.ts");
 
   const REPLACER = "folk-stack-template";
 
@@ -34,15 +35,23 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
     // get rid of anything that's not allowed in an app name
     .replace(/[^a-zA-Z0-9-_]/g, "-");
 
-  const [prodContent, readme, env, packageJson, deployConfig, dockerfile] =
-    await Promise.all([
-      fs.readFile(FLY_TOML_PATH, "utf-8"),
-      fs.readFile(README_PATH, "utf-8"),
-      fs.readFile(EXAMPLE_ENV_PATH, "utf-8"),
-      fs.readFile(PACKAGE_JSON_PATH, "utf-8").then((s) => JSON.parse(s)),
-      fs.readFile(DEPLOY_YAML_PATH, "utf-8").then((s) => YAML.parse(s)),
-      fs.readFile(DOCKERFILE_PATH, "utf-8"),
-    ]);
+  const [
+    prodContent,
+    readme,
+    env,
+    packageJson,
+    deployConfig,
+    dockerfile,
+    emailSender,
+  ] = await Promise.all([
+    fs.readFile(FLY_TOML_PATH, "utf-8"),
+    fs.readFile(README_PATH, "utf-8"),
+    fs.readFile(EXAMPLE_ENV_PATH, "utf-8"),
+    fs.readFile(PACKAGE_JSON_PATH, "utf-8").then((s) => JSON.parse(s)),
+    fs.readFile(DEPLOY_YAML_PATH, "utf-8").then((s) => YAML.parse(s)),
+    fs.readFile(DOCKERFILE_PATH, "utf-8"),
+    fs.readFile(EMAIL_SENDER_PATH, "utf-8"),
+  ]);
 
   const newEnv = env
     .replace(/^SESSION_SECRET=.*$/m, `SESSION_SECRET="${getRandomString(16)}"`)
@@ -55,6 +64,8 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
     new RegExp(escapeRegExp(REPLACER), "g"),
     APP_NAME
   );
+
+  const newEmailSender = emailSender.replace(REPLACER, APP_NAME);
 
   let saveDeploy = null;
   if (!isTypeScript) {
@@ -94,6 +105,7 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
     fs.writeFile(ENV_PATH, newEnv),
     fs.writeFile(PACKAGE_JSON_PATH, newPackageJson),
     fs.writeFile(DOCKERFILE_PATH, newDockerfile),
+    fs.writeFile(EMAIL_SENDER_PATH, newEmailSender),
     saveDeploy,
     fs.copyFile(
       path.join(rootDirectory, "remix.init", "gitignore"),
