@@ -24,6 +24,7 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
   const PACKAGE_JSON_PATH = path.join(rootDirectory, "package.json");
   const DEPLOY_YAML_PATH = path.join(rootDirectory, ".circleci/config.yml");
   const DOCKERFILE_PATH = path.join(rootDirectory, "Dockerfile");
+  const DOCKER_COMPOSE_PATH = path.join(rootDirectory, "docker-compose.yml");
   const EMAIL_SENDER_PATH = path.join(rootDirectory, "app/lib/email.server.ts");
 
   const REPLACER = "folk-stack-template";
@@ -42,6 +43,7 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
     packageJson,
     deployConfig,
     dockerfile,
+    dockerCompose,
     emailSender,
   ] = await Promise.all([
     fs.readFile(FLY_TOML_PATH, "utf-8"),
@@ -50,6 +52,7 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
     fs.readFile(PACKAGE_JSON_PATH, "utf-8").then((s) => JSON.parse(s)),
     fs.readFile(DEPLOY_YAML_PATH, "utf-8").then((s) => YAML.parse(s)),
     fs.readFile(DOCKERFILE_PATH, "utf-8"),
+    fs.readFile(DOCKER_COMPOSE_PATH, "utf-8"),
     fs.readFile(EMAIL_SENDER_PATH, "utf-8"),
   ]);
 
@@ -99,12 +102,18 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
       )
     : dockerfile;
 
+  const newDockerCompose = dockerCompose.replace(
+    new RegExp(escapeRegExp(REPLACER), "g"),
+    APP_NAME
+  );
+
   await Promise.all([
     fs.writeFile(FLY_TOML_PATH, toml.stringify(prodToml)),
     fs.writeFile(README_PATH, newReadme),
     fs.writeFile(ENV_PATH, newEnv),
     fs.writeFile(PACKAGE_JSON_PATH, newPackageJson),
     fs.writeFile(DOCKERFILE_PATH, newDockerfile),
+    fs.writeFile(DOCKER_COMPOSE_PATH, newDockerCompose),
     fs.writeFile(EMAIL_SENDER_PATH, newEmailSender),
     saveDeploy,
     fs.copyFile(
