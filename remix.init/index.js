@@ -24,7 +24,7 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
   const PACKAGE_JSON_PATH = path.join(rootDirectory, "package.json");
   const DEPLOY_YAML_PATH = path.join(rootDirectory, ".circleci/config.yml");
   const DOCKERFILE_PATH = path.join(rootDirectory, "Dockerfile");
-  const EMAIL_SENDER_PATH = path.join(rootDirectory, "appp/emails.server.ts");
+  const EMAIL_SENDER_PATH = path.join(rootDirectory, "app/emails.server.ts");
 
   const REPLACER = "folk-stack-template";
 
