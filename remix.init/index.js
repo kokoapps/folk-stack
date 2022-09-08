@@ -25,7 +25,7 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
   const DEPLOY_YAML_PATH = path.join(rootDirectory, ".circleci/config.yml");
   const DOCKERFILE_PATH = path.join(rootDirectory, "Dockerfile");
 
-  const REPLACER = "blues-stack-template";
+  const REPLACER = "folk-stack-template";
 
   const DIR_NAME = path.basename(rootDirectory);
   const SUFFIX = getRandomString(2);
