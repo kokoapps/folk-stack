@@ -44,10 +44,9 @@ async function main({ rootDirectory, packageManager, isTypeScript }) {
       fs.readFile(DOCKERFILE_PATH, "utf-8"),
     ]);
 
-  const newEnv = env.replace(
-    /^SESSION_SECRET=.*$/m,
-    `SESSION_SECRET="${getRandomString(16)}"`
-  );
+  const newEnv = env
+    .replace(/^SESSION_SECRET=.*$/m, `SESSION_SECRET="${getRandomString(16)}"`)
+    .replace(REPLACER, APP_NAME);
 
   const prodToml = toml.parse(prodContent);
   prodToml.app = prodToml.app.replace(REPLACER, APP_NAME);
